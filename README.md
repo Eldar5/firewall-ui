@@ -106,6 +106,6 @@ Distributed under the MIT License. See `LICENSE` for more information.
 
 ## Contact
 
-Your Name - [eldarbril@gmail.com](eldarbril@gmail.com)
+Email - [eldarbril@gmail.com](eldarbril@gmail.com)
 
 Project Link: [https://github.com/Eldar5/firewall-ui](https://github.com/Eldar5/firewall-ui)
