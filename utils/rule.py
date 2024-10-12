@@ -1,0 +1,53 @@
+import logging
+import logging.handlers
+from pathlib import Path
+import datetime
+
+class FirewallLogger:
+    def __init__(self):
+        # Create logs directory if it doesn't exist
+        log_dir = Path("logs")
+        log_dir.mkdir(exist_ok=True)
+        
+        # Create logger
+        self.logger = logging.getLogger("FirewallUI")
+        self.logger.setLevel(logging.DEBUG)
+        
+        # Create formatters
+        file_formatter = logging.Formatter(
+            '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+        )
+        console_formatter = logging.Formatter(
+            '%(levelname)s: %(message)s'
+        )
+        
+        # File handler for all logs
+        all_logs = logging.handlers.RotatingFileHandler(
+            log_dir / "firewall.log",
+            maxBytes=10485760,  # 10MB
+            backupCount=5
+        )
+        all_logs.setFormatter(file_formatter)
+        all_logs.setLevel(logging.DEBUG)
+        
+        # File handler for error logs
+        error_logs = logging.handlers.RotatingFileHandler(
+            log_dir / "error.log",
+            maxBytes=10485760,  # 10MB
+            backupCount=5
+        )
+        error_logs.setFormatter(file_formatter)
+        error_logs.setLevel(logging.ERROR)
+        
+        # Console handler
+        console_handler = logging.StreamHandler()
+        console_handler.setFormatter(console_formatter)
+        console_handler.setLevel(logging.INFO)
+        
+        # Add handlers to logger
+        self.logger.addHandler(all_logs)
+        self.logger.addHandler(error_logs)
+        self.logger.addHandler(console_handler)
+    
+    def get_logger(self):
+        return self.logger
