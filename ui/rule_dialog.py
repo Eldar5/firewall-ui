@@ -1,6 +1,15 @@
 from PyQt6.QtWidgets import (QDialog, QFormLayout, QLineEdit, QComboBox, 
-                             QSpinBox, QPushButton, QVBoxLayout, QDialogButtonBox)
+                             QSpinBox, QPushButton, QVBoxLayout, QDialogButtonBox, QMessageBox)
 from models.rule import Rule, Protocol, Action, Direction
+
+import ipaddress
+
+def is_valid_ip(ip_string):
+    try:
+        ipaddress.ip_address(ip_string)
+        return True
+    except ValueError:
+        return False
 
 class RuleDialog(QDialog):
     def __init__(self, parent=None, rule=None):
@@ -45,6 +54,10 @@ class RuleDialog(QDialog):
 
         layout.addLayout(form_layout)
 
+
+        self.source_address.editingFinished.connect(self.validate_source_address)
+        self.destination_address.editingFinished.connect(self.validate_destination_address)
+
         button_box = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok | 
                                       QDialogButtonBox.StandardButton.Cancel)
         button_box.accepted.connect(self.accept)
@@ -55,14 +68,18 @@ class RuleDialog(QDialog):
             self.populate_fields()
 
     def populate_fields(self):
-        self.source_address.setText(self.rule.source_address)
-        self.source_port.setValue(self.rule.source_port or 0)
-        self.destination_address.setText(self.rule.destination_address)
-        self.destination_port.setValue(self.rule.destination_port or 0)
-        self.protocol.setCurrentText(self.rule.protocol.value)
-        self.action.setCurrentText(self.rule.action.value)
-        self.direction.setCurrentText(self.rule.direction.value)
-        self.description.setText(self.rule.description)
+        if self.rule:
+            self.source_address.setText(self.rule.source_address)
+            self.destination_address.setText(self.rule.destination_address)
+            self.protocol.setCurrentText(self.rule.protocol)
+            self.source_address.setText(self.rule.source_address)
+            self.source_port.setValue(self.rule.source_port or 0)
+            self.destination_address.setText(self.rule.destination_address)
+            self.destination_port.setValue(self.rule.destination_port or 0)
+            self.protocol.setCurrentText(self.rule.protocol)
+            self.action.setCurrentText(self.rule.action)
+            self.direction.setCurrentText(self.rule.direction)
+            self.description.setText(self.rule.description)
 
     def get_rule(self):
         return Rule(
@@ -76,3 +93,19 @@ class RuleDialog(QDialog):
             direction=Direction(self.direction.currentText()),
             description=self.description.text()
         )
+    
+    def validate_source_address(self):
+        if not is_valid_ip(self.source_address.text()):
+            QMessageBox.warning(self, "Invalid IP", "Please enter a valid source IP address.")
+            self.source_address.setFocus()
+
+    def validate_destination_address(self):
+        if not is_valid_ip(self.destination_address.text()):
+            QMessageBox.warning(self, "Invalid IP", "Please enter a valid destination IP address.")
+            self.destination_address.setFocus()
+
+    def accept(self):
+        if is_valid_ip(self.source_address.text()) and is_valid_ip(self.destination_address.text()):
+            super().accept()
+        else:
+            QMessageBox.warning(self, "Invalid Input", "Please ensure all IP addresses are valid.")

@@ -57,28 +57,23 @@ This project implements a user interface for managing firewall rules on a Linux 
 ```
 firewall-ui/
 ├── src/
-│   ├── __init__.py
 │   ├── main.py
 │   ├── ui/
-│   │   ├── __init__.py
 │   │   ├── main_window.py
 │   │   ├── rule_dialog.py
 │   │   └── widgets/
-│   │       ├── __init__.py
 │   │       └── rule_table.py
 │   ├── models/
-│   │   ├── __init__.py
 │   │   └── rule.py
 │   ├── utils/
-│   │   ├── __init__.py
+│   │   ├── rule.py
 │   │   ├── logger.py
 │   │   └── kernel_comm.py
 │   └── config/
-│       ├── __init__.py
 │       └── settings.py
 ├── logs/
 ├── tests/
-│   └── __init__.py
+│   └── test_rule_model.py
 ├── requirements.txt
 ├── README.md
 └── .gitignore
