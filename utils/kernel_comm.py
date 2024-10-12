@@ -2,6 +2,7 @@ import socket
 import struct
 import json
 import logging
+from utils.logger import FirewallLogger
 from pathlib import Path
 
 class KernelCommunicator:
@@ -17,8 +18,14 @@ class KernelCommunicator:
         Rules are sent in JSON format for easy parsing in kernel space.
         """
         try:
+            # Print the rules to the console
+            print("Rules to send:", [rule.to_dict() for rule in rules])  # Print as dictionaries for clarity
+
+            # Convert Rule objects to dictionaries
+            rules_dicts = [rule.to_dict() for rule in rules]  # Convert each Rule instance to dict
             # Convert rules to JSON format
-            rules_json = json.dumps(rules)
+            rules_json = json.dumps(rules_dicts)  # Now this will work since rules_dicts is a list of dicts
+
             # Add necessary netlink headers
             message = struct.pack("=IHHII", len(rules_json) + 16, 0, 0, 0, 0)
             message += rules_json.encode()

@@ -53,7 +53,7 @@ class Rule:
         """Convert rule to dictionary for JSON serialization"""
         data = asdict(self)
         # Convert enums to strings
-        data['protocol'] = self.protocol.value
-        data['action'] = self.action.value
-        data['direction'] = self.direction.value
+        data['protocol'] = self.protocol.value if isinstance(self.protocol, Enum) else self.protocol
+        data['action'] = self.action.value if isinstance(self.action, Enum) else self.action
+        data['direction'] = self.direction.value if isinstance(self.direction, Enum) else self.direction
         return data

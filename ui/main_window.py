@@ -9,7 +9,7 @@ from utils.kernel_comm import KernelCommunicator
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
-        self.logger = FirewallLogger().get_logger()
+        self.logger = FirewallLogger()
         self.kernel_comm = KernelCommunicator()
         self.setWindowTitle("Firewall Rules Manager")
         self.setGeometry(100, 100, 800, 600)
@@ -62,10 +62,20 @@ class MainWindow(QMainWindow):
         self.log_text = QTextEdit()
         self.log_text.setReadOnly(True)
         logs_layout.addWidget(self.log_text)
-
+        
         # Add tabs to tab widget
         self.tab_widget.addTab(rules_tab, "Firewall Rules")
         self.tab_widget.addTab(logs_tab, "Logs")
+
+        # Connect the custom handler to update logs
+        qt_handler = self.logger.get_qt_handler()
+        qt_handler.new_log.connect(self.update_logs)
+
+        # Get the logger instance
+        self.logger = self.logger.get_logger()
+
+        # Test log output to verify
+        self.logger.info("Logs initialized successfully.")
 
     def add_rule(self):
         dialog = RuleDialog(self)
