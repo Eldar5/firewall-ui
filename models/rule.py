@@ -21,7 +21,6 @@ class Rule:
     Firewall rule data model.
     Using dataclass for automatic JSON serialization and validation.
     """
-    id: int  # Unique identifier for the rule
     source_address: str
     source_port: Optional[int]
     destination_address: str

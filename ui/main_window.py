@@ -1,5 +1,5 @@
 from PyQt6.QtWidgets import (QMainWindow, QWidget, QVBoxLayout, QHBoxLayout, 
-                             QPushButton, QTabWidget, QTextEdit)
+                             QPushButton, QTabWidget, QTextEdit, QMessageBox)
 from PyQt6.QtCore import Qt
 from .widgets.rule_table import RuleTableWidget
 from .rule_dialog import RuleDialog
@@ -74,8 +74,29 @@ class MainWindow(QMainWindow):
         # Get the logger instance
         self.logger = self.logger.get_logger()
 
+        # Initialize with kernel rules
+        self.load_kernel_rules()
+
         # Test log output to verify
-        self.logger.info("Logs initialized successfully.")
+        self.logger.info("Application initialized successfully.")
+
+    def load_kernel_rules(self):
+        """Load existing rules from kernel when application starts"""
+        try:
+            kernel_rules = self.kernel_comm.get_current_rules()
+            if kernel_rules:
+                # Clear existing rules in table
+                self.rule_table.setRowCount(0)
+                # Add each rule from kernel to the table
+                for rule_dict in kernel_rules:
+                    self.rule_table.add_rule_from_dict(rule_dict)
+                self.logger.info(f"Loaded {len(kernel_rules)} rules from kernel")
+            else:
+                self.logger.info("No existing rules found in kernel")
+        except Exception as e:
+            self.logger.error(f"Failed to load kernel rules: {str(e)}")
+            QMessageBox.warning(self, "Warning", 
+                              "Failed to load existing rules from kernel. Starting with empty ruleset.")
 
     def add_rule(self):
         dialog = RuleDialog(self)

@@ -83,7 +83,6 @@ class RuleDialog(QDialog):
 
     def get_rule(self):
         return Rule(
-            id=self.rule.id if self.rule else 0,
             source_address=self.source_address.text(),
             source_port=self.source_port.value(),
             destination_address=self.destination_address.text(),
