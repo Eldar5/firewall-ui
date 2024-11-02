@@ -1,6 +1,8 @@
 from PyQt6.QtWidgets import (QMainWindow, QWidget, QVBoxLayout, QHBoxLayout, 
-                             QPushButton, QTabWidget, QTextEdit, QMessageBox)
+                             QPushButton, QTabWidget, QTextEdit, QMessageBox,
+                             QLabel)
 from PyQt6.QtCore import Qt
+from PyQt6.QtGui import QColor
 from .widgets.rule_table import RuleTableWidget
 from .rule_dialog import RuleDialog
 from utils.logger import FirewallLogger
@@ -17,11 +19,27 @@ class MainWindow(QMainWindow):
         # Create central widget and layout
         central_widget = QWidget()
         self.setCentralWidget(central_widget)
-        main_layout = QVBoxLayout(central_widget)
+        self.main_layout = QVBoxLayout(central_widget)
+
+        # Create error banner (hidden by default)
+        self.error_banner = QLabel()
+        self.error_banner.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.error_banner.setStyleSheet("""
+            QLabel {
+                background-color: #ffebee;
+                color: #c62828;
+                padding: 10px;
+                border: 1px solid #ef9a9a;
+                border-radius: 4px;
+                font-weight: bold;
+            }
+        """)
+        self.error_banner.hide()
+        self.main_layout.addWidget(self.error_banner)
 
         # Create tab widget
         self.tab_widget = QTabWidget()
-        main_layout.addWidget(self.tab_widget)
+        self.main_layout.addWidget(self.tab_widget)
 
         # Create Rules Tab
         rules_tab = QWidget()
@@ -35,24 +53,32 @@ class MainWindow(QMainWindow):
         button_layout = QHBoxLayout()
 
         # Add Rule button
-        add_button = QPushButton("Add Rule")
-        add_button.clicked.connect(self.add_rule)
-        button_layout.addWidget(add_button)
+        self.add_button = QPushButton("Add Rule")
+        self.add_button.clicked.connect(self.add_rule)
+        button_layout.addWidget(self.add_button)
 
         # Edit Rule button
-        edit_button = QPushButton("Edit Rule")
-        edit_button.clicked.connect(self.edit_rule)
-        button_layout.addWidget(edit_button)
+        self.edit_button = QPushButton("Edit Rule")
+        self.edit_button.clicked.connect(self.edit_rule)
+        button_layout.addWidget(self.edit_button)
 
         # Delete Rule button
-        delete_button = QPushButton("Delete Rule")
-        delete_button.clicked.connect(self.delete_rule)
-        button_layout.addWidget(delete_button)
+        self.delete_button = QPushButton("Delete Rule")
+        self.delete_button.clicked.connect(self.delete_rule)
+        button_layout.addWidget(self.delete_button)
 
         # Apply Rules button
-        apply_button = QPushButton("Apply Rules")
-        apply_button.clicked.connect(self.apply_rules)
-        button_layout.addWidget(apply_button)
+        self.apply_button = QPushButton("Apply Rules")
+        self.apply_button.clicked.connect(self.apply_rules)
+        button_layout.addWidget(self.apply_button)
+
+        # Store all control buttons for easy access
+        self.control_buttons = [
+            self.add_button, 
+            self.edit_button, 
+            self.delete_button, 
+            self.apply_button
+        ]
 
         rules_layout.addLayout(button_layout)
 
@@ -77,26 +103,40 @@ class MainWindow(QMainWindow):
         # Initialize with kernel rules
         self.load_kernel_rules()
 
-        # Test log output to verify
-        self.logger.info("Application initialized successfully.")
+    def show_error_state(self, message):
+        """Display error banner and disable UI controls"""
+        self.error_banner.setText(message)
+        self.error_banner.show()
+        
+        # Disable all controls
+        self.rule_table.setEnabled(False)
+        for button in self.control_buttons:
+            button.setEnabled(False)
+            
+        self.logger.error(message)
 
     def load_kernel_rules(self):
         """Load existing rules from kernel when application starts"""
         try:
             kernel_rules = self.kernel_comm.get_current_rules()
-            if kernel_rules:
-                # Clear existing rules in table
-                self.rule_table.setRowCount(0)
+            
+            if kernel_rules is None:  # No response from kernel
+                self.show_error_state("Failed to communicate with kernel module. Please check if the module is loaded and try again.")
+                return
+                
+            # Clear existing rules in table
+            self.rule_table.setRowCount(0)
+            
+            if kernel_rules:  # If we got rules (empty list is okay)
                 # Add each rule from kernel to the table
                 for rule_dict in kernel_rules:
                     self.rule_table.add_rule_from_dict(rule_dict)
                 self.logger.info(f"Loaded {len(kernel_rules)} rules from kernel")
             else:
                 self.logger.info("No existing rules found in kernel")
+                
         except Exception as e:
-            self.logger.error(f"Failed to load kernel rules: {str(e)}")
-            QMessageBox.warning(self, "Warning", 
-                              "Failed to load existing rules from kernel. Starting with empty ruleset.")
+            self.show_error_state(f"Failed to initialize kernel communication: {str(e)}")
 
     def add_rule(self):
         dialog = RuleDialog(self)
