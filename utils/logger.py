@@ -6,14 +6,21 @@ from PyQt6.QtCore import QObject, pyqtSignal
 
 class QTextEditHandler(QObject, logging.Handler):
     new_log = pyqtSignal(str)
-
     def __init__(self):
         super().__init__()
         logging.Handler.__init__(self)
+        self.flushOnClose = False  # Prevent flush attempts during shutdown
 
     def emit(self, record):
         msg = self.format(record)
         self.new_log.emit(msg)
+
+    def close(self):
+        """Clean up resources used by the handler."""
+        try:
+            super().close()
+        except:
+            pass
 
 class FirewallLogger:
     def __init__(self):
@@ -72,3 +79,12 @@ class FirewallLogger:
 
     def get_qt_handler(self):
         return self.qt_handler
+
+    def cleanup(self):
+        """Clean up logger resources"""
+        try:
+            if self.qt_handler in self.logger.handlers:
+                self.logger.removeHandler(self.qt_handler)
+                self.qt_handler.close()
+        except Exception as e:
+            print(f"Error during logger cleanup: {e}")

@@ -16,6 +16,9 @@ class MainWindow(QMainWindow):
         self.setWindowTitle("Firewall Rules Manager")
         self.setGeometry(100, 100, 740, 600)
 
+        self.logger_instance = self.logger.get_logger()
+        self.qt_handler = self.logger.get_qt_handler()
+
         # Create central widget and layout
         central_widget = QWidget()
         self.setCentralWidget(central_widget)
@@ -176,3 +179,20 @@ class MainWindow(QMainWindow):
 
     def update_logs(self, log_text):
         self.log_text.append(log_text)
+
+    def closeEvent(self, event):
+        """Handle cleanup before window closes"""
+        try:
+            # Remove Qt handler from logger
+            if self.qt_handler in self.logger_instance.handlers:
+                self.logger_instance.removeHandler(self.qt_handler)
+            
+            # Close the kernel communicator
+            if hasattr(self, 'kernel_comm'):
+                self.kernel_comm.__del__()
+
+        except Exception as e:
+            print(f"Error during cleanup: {e}")
+        
+        # Call parent's closeEvent
+        super().closeEvent(event)
