@@ -12,7 +12,7 @@ class MainWindow(QMainWindow):
         self.logger = FirewallLogger()
         self.kernel_comm = KernelCommunicator()
         self.setWindowTitle("Firewall Rules Manager")
-        self.setGeometry(100, 100, 800, 600)
+        self.setGeometry(100, 100, 740, 600)
 
         # Create central widget and layout
         central_widget = QWidget()
