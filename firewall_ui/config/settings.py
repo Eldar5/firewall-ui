@@ -14,7 +14,7 @@ WINDOW_HEIGHT = 600
 
 # Rule table columns
 RULE_TABLE_COLUMNS = [
-    "Source", "Destination", "Protocol", 
+    "ID", "Source", "Destination", "Protocol", 
     "Action", "Direction", "Enabled", "Description"
 ]
 

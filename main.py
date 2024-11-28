@@ -1,8 +1,7 @@
 import sys
 from PyQt6.QtWidgets import QApplication
-from ui.main_window import MainWindow
-from utils.logger import FirewallLogger
-
+from firewall_ui.ui.main_window import MainWindow
+from firewall_ui.utils.logger import FirewallLogger
 def main():
     # Initialize logger
     logger = FirewallLogger().get_logger()

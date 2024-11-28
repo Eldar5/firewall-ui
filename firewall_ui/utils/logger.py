@@ -2,6 +2,18 @@ import logging
 import logging.handlers
 from pathlib import Path
 import datetime
+from PyQt6.QtCore import QObject, pyqtSignal
+
+class QTextEditHandler(QObject, logging.Handler):
+    new_log = pyqtSignal(str)
+
+    def __init__(self):
+        super().__init__()
+        logging.Handler.__init__(self)
+
+    def emit(self, record):
+        msg = self.format(record)
+        self.new_log.emit(msg)
 
 class FirewallLogger:
     def __init__(self):
@@ -44,10 +56,19 @@ class FirewallLogger:
         console_handler.setFormatter(console_formatter)
         console_handler.setLevel(logging.INFO)
         
+        # QTextEdit handler
+        self.qt_handler = QTextEditHandler()
+        self.qt_handler.setFormatter(file_formatter)
+        self.qt_handler.setLevel(logging.DEBUG)
+        
         # Add handlers to logger
         self.logger.addHandler(all_logs)
         self.logger.addHandler(error_logs)
         self.logger.addHandler(console_handler)
+        self.logger.addHandler(self.qt_handler)
     
     def get_logger(self):
         return self.logger
+
+    def get_qt_handler(self):
+        return self.qt_handler
