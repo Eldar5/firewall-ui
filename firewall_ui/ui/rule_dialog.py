@@ -27,9 +27,13 @@ class RuleDialog(QDialog):
         form_layout.addWidget(QLabel("Source IP Range:"), current_row, 0)
         self.source_address_start = QLineEdit()
         self.source_address_end = QLineEdit()
+        ip_range_btn = QPushButton("*")
+        ip_range_btn.clicked.connect(lambda: self.fill_ip_range(
+            self.source_address_start, self.source_address_end))
         form_layout.addWidget(self.source_address_start, current_row, 1)
         form_layout.addWidget(QLabel("to"), current_row, 2)
         form_layout.addWidget(self.source_address_end, current_row, 3)
+        form_layout.addWidget(ip_range_btn, current_row, 4)
         current_row += 1
 
         # Source Port Range
@@ -38,18 +42,26 @@ class RuleDialog(QDialog):
         self.source_port_end = QSpinBox()
         self.source_port_start.setRange(0, 65535)
         self.source_port_end.setRange(0, 65535)
+        port_range_btn = QPushButton("*")
+        port_range_btn.clicked.connect(lambda: self.fill_port_range(
+            self.source_port_start, self.source_port_end))
         form_layout.addWidget(self.source_port_start, current_row, 1)
         form_layout.addWidget(QLabel("to"), current_row, 2)
         form_layout.addWidget(self.source_port_end, current_row, 3)
+        form_layout.addWidget(port_range_btn, current_row, 4)
         current_row += 1
 
         # Destination IP Range
         form_layout.addWidget(QLabel("Destination IP Range:"), current_row, 0)
         self.destination_address_start = QLineEdit()
         self.destination_address_end = QLineEdit()
+        ip_range_btn2 = QPushButton("*")
+        ip_range_btn2.clicked.connect(lambda: self.fill_ip_range(
+            self.destination_address_start, self.destination_address_end))
         form_layout.addWidget(self.destination_address_start, current_row, 1)
         form_layout.addWidget(QLabel("to"), current_row, 2)
         form_layout.addWidget(self.destination_address_end, current_row, 3)
+        form_layout.addWidget(ip_range_btn2, current_row, 4)
         current_row += 1
 
         # Destination Port Range
@@ -58,9 +70,13 @@ class RuleDialog(QDialog):
         self.destination_port_end = QSpinBox()
         self.destination_port_start.setRange(0, 65535)
         self.destination_port_end.setRange(0, 65535)
+        port_range_btn2 = QPushButton("*")
+        port_range_btn2.clicked.connect(lambda: self.fill_port_range(
+            self.destination_port_start, self.destination_port_end))
         form_layout.addWidget(self.destination_port_start, current_row, 1)
         form_layout.addWidget(QLabel("to"), current_row, 2)
         form_layout.addWidget(self.destination_port_end, current_row, 3)
+        form_layout.addWidget(port_range_btn2, current_row, 4)
         current_row += 1
 
         # Other fields
@@ -103,6 +119,14 @@ class RuleDialog(QDialog):
 
         if self.rule:
             self.populate_fields()
+
+    def fill_ip_range(self, start_field, end_field):
+        start_field.setText("0.0.0.0")
+        end_field.setText("255.255.255.255")
+
+    def fill_port_range(self, start_field, end_field):
+        start_field.setValue(0)
+        end_field.setValue(65535)
 
     def populate_fields(self):
         if self.rule:
