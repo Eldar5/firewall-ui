@@ -6,7 +6,51 @@ class RuleTableWidget(QWidget):
     def __init__(self):
         super().__init__()
         self.setup_ui()
-        
+    
+    def currentRow(self):
+        """Get the currently selected row"""
+        selected_rows = self.table.selectedIndexes()
+        if not selected_rows:
+            return -1
+        return selected_rows[0].row()
+
+    def removeRow(self, row):
+        """Remove a row from the table"""
+        self.table.removeRow(row)
+        self.update_rule_ids()  # Update IDs after deletion
+
+    def clone_rule(self, row):
+        """Clone a rule at the specified row and add it as a new rule"""
+        if row < 0 or row >= self.table.rowCount():
+            return
+
+        # Get the rule to clone
+        original_rule = self.get_rule(row)
+
+        # Create new rule with same data but new ID
+        new_rule = Rule(
+            id=self.table.rowCount() + 1,  # New ID will be set by add_rule
+            source_address_start=original_rule.source_address_start,
+            source_address_end=original_rule.source_address_end,
+            source_port_start=original_rule.source_port_start,
+            source_port_end=original_rule.source_port_end,
+            destination_address_start=original_rule.destination_address_start,
+            destination_address_end=original_rule.destination_address_end,
+            destination_port_start=original_rule.destination_port_start,
+            destination_port_end=original_rule.destination_port_end,
+            protocol=original_rule.protocol,
+            action=original_rule.action,
+            direction=original_rule.direction,
+            enabled=original_rule.enabled,
+            description=f"{original_rule.description}"
+        )
+
+        # Add the cloned rule
+        self.add_rule(new_rule)
+
+    # Select the new rule
+        self.table.selectRow(self.table.rowCount() - 1)
+
     def setup_ui(self):
         layout = QHBoxLayout()
         self.setLayout(layout)
@@ -40,6 +84,7 @@ class RuleTableWidget(QWidget):
         self.table.horizontalHeader().setStretchLastSection(True)
         self.table.setSelectionBehavior(QAbstractItemView.SelectionBehavior.SelectRows)
         self.table.setSelectionMode(QAbstractItemView.SelectionMode.SingleSelection)
+        self.table.setEditTriggers(QAbstractItemView.EditTrigger.NoEditTriggers)
     
     def move_row_up(self):
         selected_rows = self.table.selectedIndexes()

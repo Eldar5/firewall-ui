@@ -49,6 +49,11 @@ class MainWindow(QMainWindow):
         delete_button.clicked.connect(self.delete_rule)
         button_layout.addWidget(delete_button)
 
+        # Clone Rule button
+        clone_button = QPushButton("Clone Rule")
+        clone_button.clicked.connect(self.clone_rule)
+        button_layout.addWidget(clone_button)
+        
         # Apply Rules button
         apply_button = QPushButton("Apply Rules")
         apply_button.clicked.connect(self.apply_rules)
@@ -113,6 +118,14 @@ class MainWindow(QMainWindow):
         else:
             self.logger.warning("No rule selected for deletion")
                 
+    def clone_rule(self):
+        selected_row = self.rule_table.currentRow()
+        if selected_row >= 0:
+            self.rule_table.clone_rule(selected_row)
+            self.logger.info(f"Cloned rule at row {selected_row + 1}")
+        else:
+            self.logger.warning("No rule selected for cloning")
+    
     def apply_rules(self):
        rules = self.rule_table.get_all_rules()
        success, error, validation_error = self.kernel_comm.send_config(rules)
@@ -129,5 +142,8 @@ class MainWindow(QMainWindow):
            self.logger.error(f"Failed to apply rules: {error}")
            QMessageBox.critical(self, "Error", f"Failed to apply rules: {error}")
     
+    
+    
     def update_logs(self, log_text):
         self.log_text.append(log_text)
+    
