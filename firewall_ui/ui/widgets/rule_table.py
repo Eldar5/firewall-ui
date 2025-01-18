@@ -163,12 +163,12 @@ class RuleTableWidget(QWidget):
         for rule_data in config:
             rule = Rule(
                 id=rule_data.get('id', 0),
-                source_address_start=rule_data['source_address_start'],
-                source_address_end=rule_data['source_address_end'],
+                source_address_start=rule_data.get('source_address_start'),
+                source_address_end=rule_data.get('source_address_end'),
                 source_port_start=rule_data.get('source_port_start'),
                 source_port_end=rule_data.get('source_port_end'),
-                destination_address_start=rule_data['destination_address_start'],
-                destination_address_end=rule_data['destination_address_end'],
+                destination_address_start=rule_data.get('destination_address_start'),
+                destination_address_end=rule_data.get('destination_address_end'),
                 destination_port_start=rule_data.get('destination_port_start'),
                 destination_port_end=rule_data.get('destination_port_end'),
                 protocol=Protocol(rule_data['protocol']),
